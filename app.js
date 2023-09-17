@@ -9,8 +9,6 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
 const User = require('./models/user')
 
 const app = express();
@@ -36,13 +34,39 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
 app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true}))
 app.use(passport.initialize())
 app.use(passport.session())
 app.use(express.urlencoded({ extended: false }))
 
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    const user = await User.findOne({ username: username })
+    if (!user) {
+      return done(null, false, { message: 'Incorrect username' })
+    }
+    const match = await bcrypt.compare(password, user.password)
+    if (!match) {
+      return done(null, false, { message: 'Incorrect password' })
+    }
+    return done(null, user)
+  })
+)
+
+passport.serializeUser((user, done) => {
+  done(null, user.id)
+})
+
+passport.deserializeUser(async (id, done) => {
+  const user = await User.findById(id)
+  console.log(user)
+  done(null, user)
+})
+
+app.use((req, res, next) => {
+  res.locals.currentUser = req.user
+  next()
+})
 
 app.get('/signup', (req, res) => {
   res.render('signup', { title: 'Sign up!' })
@@ -59,6 +83,17 @@ app.post('/signup', async (req, res, next) => {
     await user.save()
     res.redirect('/')
   })
+})
+
+app.post('/login',
+  passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/'
+  })
+)
+
+app.get('/', (req, res, next) => {
+  res.render('index', { title: 'Members Only', user: req.user})
 })
 
 // catch 404 and forward to error handler

@@ -2,6 +2,16 @@ extends layout
 
 block content
   h1= title
-  p Welcome to #{title}
+  if user === undefined
+    p Welcome to #{title}
+  else
+    p Welcome to #{title}, #{user.full_name}
 
   a(href='/signup') Sign up!
+
+  form(method='POST' action='/login')
+    label(for='username')  Username: 
+    input#username(type='text' placeholder='johnsmith123' name='username')
+    label(for='password')  Password: 
+    input#password(type='password' placeholder='NOT password1' name='password')
+    button(type='submit')  Submit
