@@ -1,3 +1,8 @@
+const bcrypt = require('bcryptjs')
+const session = require('express-session')
+const passport = require('passport')
+const LocalStrategy = require('passport-local').Strategy
+
 const createError = require('http-errors');
 const express = require('express');
 const path = require('path');
@@ -6,6 +11,7 @@ const logger = require('morgan');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const User = require('./models/user')
 
 const app = express();
 
@@ -32,6 +38,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use(session({ secret: process.env.SESSION_SECRET, resave: true, saveUninitialized: true}))
+app.use(passport.initialize())
+app.use(passport.session())
+app.use(express.urlencoded({ extended: false }))
+
+
+app.get('/signup', (req, res) => {
+  res.render('signup', { title: 'Sign up!' })
+})
+app.post('/signup', async (req, res, next) => {
+  bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
+    const user = new User({
+      first_name: req.body.first_name,
+      last_name: req.body.last_name,
+      username: req.body.username,
+      password: hashedPassword,
+      membershipStatus: false,
+    })
+    await user.save()
+    res.redirect('/')
+  })
+})
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
