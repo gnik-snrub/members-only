@@ -1,0 +1,14 @@
+extends layout
+
+block content
+  h1= title
+  a(href='/') Home
+
+  if status === true
+    p You are already in the club! Nothing more for you to do here.
+  else
+    p Do you know the secret password?
+  form(action='/join_club' method='POST')
+    label(for='secret') Secret Password:
+    input#secret(type='text' placeholder='Secret Password' name='secret')
+    button Submit

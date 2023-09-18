@@ -91,6 +91,19 @@ app.post('/login',
   })
 )
 
+app.get('/join_club', (req, res, next) => {
+  res.render('join_club', {title: 'Join the club', status: req.user ? req.user.membershipStatus : false })
+})
+app.post('/join_club', async(req, res, next) => {
+  if (req.user && req.body.secret === process.env.MEMBERSHIP_PASSWORD) {
+    req.user.membershipStatus = true
+    await User.findByIdAndUpdate(req.user.id, req.user)
+    res.redirect('/')
+  } else {
+    res.redirect('/join_club')
+  }
+})
+
 app.get('/', (req, res, next) => {
   res.render('index', { title: 'Members Only', user: req.user})
 })
