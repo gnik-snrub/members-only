@@ -1,13 +1,14 @@
 extends layout
 
 block content
-  h1= title
-  if user === undefined
-    p Welcome to #{title}
+  if user
+    h1 Welcome to #{title}, #{user.full_name}. You are #{user.membershipStatus ? 'in the club!' : 'not in the club'}
+    if !user.membershipStatus
+      a(href='/join_club') Join the club!
+    a(href='/logout') Log out
   else
-    p Welcome to #{title}, #{user.full_name}
-
-  a(href='/signup') Sign up!
+    h1 Welcome to #{title}
+    a(href='/signup') Sign up!
 
   form(method='POST' action='/login')
     label(for='username')  Username: 
