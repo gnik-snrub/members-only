@@ -126,7 +126,6 @@ app.post('/create_message', async(req, res, next) => {
 
 app.get('/', async (req, res, next) => {
   const messages = await Message.find().populate('author').sort({timestamp: -1})
-  console.log(messages)
   res.render('index', { title: 'Members Only', user: req.user, messages })
 })
 
