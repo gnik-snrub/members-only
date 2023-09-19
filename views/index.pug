@@ -24,6 +24,6 @@ block content
 
   each message in messages
     if user && user.membershipStatus
-      li #{message.author.full_name} (#{message.author.username}): #{message.content}
+      li #{message.formatted_timestamp} - #{message.author.full_name} (#{message.author.username}): #{message.content}
     else
       li Hidden member: #{message.content}
