@@ -16,3 +16,9 @@ block content
     label(for='password')  Password: 
     input#password(type='password' placeholder='NOT password1' name='password')
     button(type='submit')  Submit
+
+  form(method='POST' action='/create_message')
+    label(for='message') Message: 
+    input#message(type='text' placeholder='Words words words' name='message')
+    button(type='submit') Submit
+

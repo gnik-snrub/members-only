@@ -10,6 +10,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
 const User = require('./models/user')
+const Message = require('./models/message')
 
 const app = express();
 
@@ -115,6 +116,14 @@ app.post('/join_club', async(req, res, next) => {
 
 app.get('/', (req, res, next) => {
   res.render('index', { title: 'Members Only', user: req.user})
+app.post('/create_message', async(req, res, next) => {
+  const message = new Message({
+    author: req.user,
+    content: req.body.message,
+    timestamp: new Date()
+  })
+  await message.save()
+  res.redirect('/')
 })
 
 // catch 404 and forward to error handler
