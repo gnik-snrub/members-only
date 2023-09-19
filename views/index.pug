@@ -22,3 +22,8 @@ block content
     input#message(type='text' placeholder='Words words words' name='message')
     button(type='submit') Submit
 
+  each message in messages
+    if user && user.membershipStatus
+      li #{message.author.full_name} (#{message.author.username}): #{message.content}
+    else
+      li Hidden member: #{message.content}
