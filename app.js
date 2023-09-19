@@ -91,6 +91,15 @@ app.post('/login',
   })
 )
 
+app.get('/logout', async(req, res, next) => {
+  req.logout((err) => {
+    if (err) {
+      return next(err)
+    }
+    res.redirect('/')
+  })
+})
+
 app.get('/join_club', (req, res, next) => {
   res.render('join_club', {title: 'Join the club', status: req.user ? req.user.membershipStatus : false })
 })
