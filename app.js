@@ -167,15 +167,26 @@ app.post('/join_club', [
   }
 ])
 
-app.post('/create_message', async(req, res, next) => {
-  const message = new Message({
-    author: req.user,
-    content: req.body.message,
-    timestamp: new Date()
-  })
-  await message.save()
-  res.redirect('/')
-})
+app.post('/create_message', [
+  body('message', 'Message cannot be empty').trim().isLength({min: 1}),
+  async(req, res, next) => {
+    const errors = validationResult(req)
+
+    if (!errors.isEmpty()) {
+      const messages = await Message.find().populate('author').sort({timestamp: -1})
+      res.render('index', { title: 'Members Only', user: req.user, messages, errors: errors.array() })
+      return
+    } else {
+      const message = new Message({
+        author: req.user,
+        content: req.body.message,
+        timestamp: new Date()
+      })
+      await message.save()
+      res.redirect('/')
+    }
+  }
+])
 
 app.get('/', async (req, res, next) => {
   const messages = await Message.find().populate('author').sort({timestamp: -1})
