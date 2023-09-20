@@ -9,6 +9,8 @@ const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 
+const { body, validationResult } = require('express-validator')
+
 const User = require('./models/user')
 const Message = require('./models/message')
 
@@ -71,19 +73,50 @@ app.use((req, res, next) => {
 app.get('/signup', (req, res) => {
   res.render('signup', { title: 'Sign up!' })
 })
-app.post('/signup', async (req, res, next) => {
-  bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
-    const user = new User({
+app.post('/signup', [
+  body('first_name', 'First name must not be empty').trim().isLength({min: 1}),
+  body('last_name', 'Last name must not be empty').trim().isLength({min: 1}),
+  body('username', 'Username must not be empty').trim().isLength({min: 1}),
+  body('password', 'Password must not be empty').trim().isLength({min: 1}),
+  body('confirm').custom((value, { req })=> {
+    if (!req.body.password) {
+      return true
+    }
+    if (value !== req.body.password) {
+      throw new Error('Passwords do not match')
+    }
+    return true
+  }),
+  async (req, res, next) => {
+    const errors = validationResult(req)
+
+    const user = {
       first_name: req.body.first_name,
       last_name: req.body.last_name,
-      username: req.body.username,
-      password: hashedPassword,
-      membershipStatus: false,
-    })
-    await user.save()
-    res.redirect('/')
-  })
-})
+      username: req.body.username
+    }
+    if (!errors.isEmpty()) {
+      res.render('signup', {
+        title: 'Sign up!',
+        errors: errors.array(),
+        user
+      })
+      return
+    } else {
+      bcrypt.hash(req.body.password, 10, async(err, hashedPassword) => {
+        const user = new User({
+          first_name: req.body.first_name,
+          last_name: req.body.last_name,
+          username: req.body.username,
+          password: hashedPassword,
+          membershipStatus: false,
+        })
+        await user.save()
+        res.redirect('/')
+      })
+    }
+  }
+])
 
 app.post('/login',
   passport.authenticate('local', {
