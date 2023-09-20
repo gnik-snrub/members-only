@@ -12,3 +12,8 @@ block content
     label(for='secret') Secret Password:
     input#secret(type='text' placeholder='Secret Password' name='secret')
     button Submit
+
+  if errors
+    ul
+      each error in errors
+        li= error.msg

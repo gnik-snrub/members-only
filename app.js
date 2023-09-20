@@ -137,15 +137,35 @@ app.get('/logout', async(req, res, next) => {
 app.get('/join_club', (req, res, next) => {
   res.render('join_club', {title: 'Join the club', status: req.user ? req.user.membershipStatus : false })
 })
-app.post('/join_club', async(req, res, next) => {
-  if (req.user && req.body.secret === process.env.MEMBERSHIP_PASSWORD) {
-    req.user.membershipStatus = true
-    await User.findByIdAndUpdate(req.user.id, req.user)
-    res.redirect('/')
-  } else {
-    res.redirect('/join_club')
+app.post('/join_club', [
+  body('secret').custom((value, {req}) => {
+    if (value !== process.env.MEMBERSHIP_PASSWORD) {
+      throw new Error('Incorrect secret password')
+    } 
+    return true
+  }),
+  body('secret').custom((value, {req}) => {
+    if (!req.user) {
+      throw new Error('Must be logged in to join the club')
+    }
+    return true
+  }),
+  async(req, res, next) => {
+    const errors = validationResult(req)
+    if (!errors.isEmpty()) {
+      res.render('join_club', {
+        title: 'Join the club',
+        status: req.user ? req.user.membershipStatus : false,
+        errors: errors.array()
+      })
+      return
+    } else {
+      req.user.membershipStatus = true
+      await User.findByIdAndUpdate(req.user.id, req.user)
+      res.redirect('/')
+    }
   }
-})
+])
 
 app.post('/create_message', async(req, res, next) => {
   const message = new Message({
