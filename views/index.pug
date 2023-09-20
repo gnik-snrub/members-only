@@ -4,7 +4,7 @@ block content
   if user
     h1 Welcome to #{title}, #{user.full_name}. You are #{user.membershipStatus ? 'in the club!' : 'not in the club'}
     if !user.membershipStatus
-      a(href='/join_club') Join the club!
+      a(href='/join_club') Join the club! 
     a(href='/logout') Log out
   else
     h1 Welcome to #{title}
@@ -17,10 +17,15 @@ block content
     input#password(type='password' placeholder='NOT password1' name='password')
     button(type='submit')  Submit
 
-  form(method='POST' action='/create_message')
-    label(for='message') Message: 
-    input#message(type='text' placeholder='Words words words' name='message')
-    button(type='submit') Submit
+  if user
+    form(method='POST' action='/create_message')
+      label(for='message') Message: 
+      input#message(type='text' placeholder='Words words words' name='message')
+      button(type='submit') Submit
+    if errors
+      ul
+        each error in errors
+          li!= error.msg
 
   each message in messages
     if user && user.membershipStatus
