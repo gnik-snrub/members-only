@@ -2,9 +2,8 @@ extends layout
 
 block content
   if user
-    h1 Welcome to #{title}, #{user.full_name}. You are #{user.membershipStatus ? 'in the club!' : 'not in the club'}
-    if !user.membershipStatus
-      a(href='/join_club') Join the club! 
+    h1 Welcome to #{title}, #{user.full_name} #{user.admin ? '(admin)' : ''}. You are #{user.membershipStatus ? 'in the club!' : 'not in the club'}
+    a(href='/join_club') Join the club! 
     a(href='/logout') Log out
   else
     h1 Welcome to #{title}
