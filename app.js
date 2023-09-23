@@ -140,10 +140,10 @@ app.get('/join_club', (req, res, next) => {
 })
 app.post('/join_club', [
   body('secret').custom((value, {req}) => {
-    if (value !== process.env.MEMBERSHIP_PASSWORD) {
-      throw new Error('Incorrect secret password')
-    } 
-    return true
+    if (value === process.env.MEMBERSHIP_PASSWORD || value === process.env.ADMIN_PASSWORDD) {
+      return true
+    }
+    throw new Error('Incorrect secret password')
   }),
   body('secret').custom((value, {req}) => {
     if (!req.user) {
@@ -161,9 +161,15 @@ app.post('/join_club', [
       })
       return
     } else {
-      req.user.membershipStatus = true
-      await User.findByIdAndUpdate(req.user.id, req.user)
-      res.redirect('/')
+      if (req.body.secret === process.env.MEMBERSHIP_PASSWORD) {
+        req.user.membershipStatus = true
+        await User.findByIdAndUpdate(req.user.id, req.user)
+        res.redirect('/')
+      } else if (req.body.secret === process.env.ADMIN_PASSWORD) {
+        req.user.admin = true
+        await User.findByIdAndUpdate(req.user.id, req.user)
+        res.redirect('/')
+      }
     }
   }
 ])
