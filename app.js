@@ -110,6 +110,7 @@ app.post('/signup', [
           username: req.body.username,
           password: hashedPassword,
           membershipStatus: false,
+          admin: false,
         })
         await user.save()
         res.redirect('/')
