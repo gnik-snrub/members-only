@@ -95,6 +95,13 @@ app.post('/signup', [
   body('first_name', 'First name must not be empty').trim().isLength({min: 1}),
   body('last_name', 'Last name must not be empty').trim().isLength({min: 1}),
   body('username', 'Username must not be empty').trim().isLength({min: 1}),
+  body('username').custom(async (value, { req }) => {
+    const user = await User.find({username: value})
+    if (user.length > 0) {
+      throw new Error('Username is already taken')
+    }
+    return true
+  }),
   body('password', 'Password must not be empty').trim().isLength({min: 1}),
   body('confirm').custom((value, { req })=> {
     if (!req.body.password) {
