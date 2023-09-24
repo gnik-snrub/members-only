@@ -26,8 +26,14 @@ block content
         each error in errors
           li!= error.msg
 
-  each message in messages
-    if user && user.membershipStatus
-      li #{message.formatted_timestamp} - #{message.author.full_name} (#{message.author.username}): #{message.content}
-    else
-      li Hidden member: #{message.content}
+  ul
+    each message in messages
+      if user && user.membershipStatus
+        li
+          if user.admin
+            form(action='/delete' method='POST' style='display: inline; margin-right: 5px;')
+              input(type='hidden' name='messageid' required='true' value=message._id)
+              button(type='submit') Delete
+          | #{message.formatted_timestamp} - #{message.author.full_name} (#{message.author.username}): #{message.content}
+      else
+        li Hidden member: #{message.content}
