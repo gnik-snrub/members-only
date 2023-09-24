@@ -195,6 +195,11 @@ app.post('/create_message', [
   }
 ])
 
+app.post('/delete', async(req, res, next) => {
+  await Message.findByIdAndRemove(req.body.messageid)
+  res.redirect('/')
+})
+
 app.get('/', async (req, res, next) => {
   const messages = await Message.find().populate('author').sort({timestamp: -1})
   res.render('index', { title: 'Members Only', user: req.user, messages })
