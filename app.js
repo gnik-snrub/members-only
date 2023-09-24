@@ -158,7 +158,7 @@ app.get('/join_club', (req, res, next) => {
 })
 app.post('/join_club', [
   body('secret').custom((value, {req}) => {
-    if (value === process.env.MEMBERSHIP_PASSWORD || value === process.env.ADMIN_PASSWORDD) {
+    if (value === process.env.MEMBERSHIP_PASSWORD || value === process.env.ADMIN_PASSWORD) {
       return true
     }
     throw new Error('Incorrect secret password')
